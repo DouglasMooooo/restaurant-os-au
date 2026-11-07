@@ -20,7 +20,7 @@ See the [Australian setup and CSV import guide](docs/AU_SETUP_AND_IMPORTS.md) fo
 
 ## Online interactive preview
 
-The separate [Vercel demo](https://vercel-demo-peach-six.vercel.app) is a front-end-only preview with fictional data. It demonstrates the floor plan, sample menu, stock overview and reports. Clicks are kept in browser memory only. It has no API or database and cannot save orders, process payments or run a restaurant. Its source is in [`vercel-demo/`](vercel-demo/); deploy it independently with `pnpm dlx vercel --prod` from that directory.
+The separate [Vercel demo](https://vercel-demo-peach-six.vercel.app) is a front-end-only preview with fictional data. It demonstrates the floor plan, sample menu, stock overview, reports and a QR table-order flow. Demo orders and requests use browser-local storage and synchronize across tabs in the same browser only. There is no API or database, so scanned orders do not reach a different device or a real kitchen. It cannot process payments or run a restaurant. Its source is in [`vercel-demo/`](vercel-demo/); deploy it independently with `pnpm dlx vercel --prod` from that directory.
 
 Vercel-hosted frontend demo status and storage notes are in [docs/VERCEL_DEMO.md](docs/VERCEL_DEMO.md).
 
