@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { ArrowRight, BarChart3, Bell, BookOpen, Boxes, Check, ChefHat, CircleAlert, CircleDollarSign, Clock3, LayoutDashboard, Minus, Package, Plus, QrCode, Receipt, RefreshCw, Search, Sparkles, Store, Users, X } from 'lucide-react';
 import { clearDemoState, readDemoState, writeDemoState, type DemoOrder } from './demo-state';
+import { readLanguage, subscribeToLanguageChange, writeLanguage, type Language } from './language';
+import { copy } from './copy';
 import menuData from './menu-data.json';
 
 type MenuItem = (typeof menuData)[number];
@@ -26,21 +29,39 @@ export default function Home() {
   const [cart, setCart] = useState<MenuItem[]>([]);
   const [toast, setToast] = useState('');
   const [category, setCategory] = useState(categories[0]);
-  const [language, setLanguage] = useState<'en' | 'zh'>('en');
+  const [language, setLanguage] = useState<Language>('zh');
   const [search, setSearch] = useState('');
+  const [menuSearch, setMenuSearch] = useState('');
+  const [menuCategory, setMenuCategory] = useState('ALL');
+  const [allOrders, setAllOrders] = useState<DemoOrder[]>([]);
+  const [requests, setRequests] = useState<import('./demo-state').DemoRequest[]>([]);
+  const [inventory, setInventory] = useState([
+    { name: 'Chicken thigh', nameZh: '鸡腿肉', stock: 18, unit: 'kg', reorder: 8 },
+    { name: 'Jasmine rice', nameZh: '香米', stock: 26, unit: 'kg', reorder: 10 },
+    { name: 'Canola oil', nameZh: '菜籽油', stock: 14, unit: 'L', reorder: 5 },
+    { name: 'Baby spinach', nameZh: '嫩菠菜', stock: 2, unit: 'kg', reorder: 4 },
+    { name: 'Barramundi fillet', nameZh: '盲曹鱼片', stock: 9, unit: 'kg', reorder: 5 },
+    { name: 'Takeaway boxes', nameZh: '外卖餐盒', stock: 48, unit: 'each', reorder: 30 },
+  ]);
+  const [inventoryReady, setInventoryReady] = useState(false);
+  const tx = copy[language];
   useEffect(() => {
     const refresh = () => {
       const demo = readDemoState();
+      setAllOrders(demo.orders);
+      setRequests(demo.requests);
       setDemoOrders(demo.orders.filter(order => order.table === table && order.status === 'Submitted'));
       setTables(initialTables.map(t => {
+        const cleared = demo.clearedTables.includes(t.n);
+        const base = cleared ? { ...t, state: 'Available', guests: 0, total: 0 } : t;
         const activeOrders = demo.orders.filter(o => o.table === t.n && o.status === 'Submitted');
         const addedTotal = activeOrders.reduce((sum, order) => sum + order.amount, 0);
         const billRequested = demo.requests.some(r => r.table === t.n && r.type === 'BILL');
         return {
-          ...t,
-          state: billRequested ? 'Bill' : addedTotal > 0 && t.state === 'Available' ? 'Seated' : t.state,
-          guests: addedTotal > 0 ? Math.max(t.guests, 2) : t.guests,
-          total: t.total + addedTotal,
+          ...base,
+          state: billRequested ? 'Bill' : addedTotal > 0 && base.state === 'Available' ? 'Seated' : base.state,
+          guests: addedTotal > 0 ? Math.max(base.guests, 2) : base.guests,
+          total: base.total + addedTotal,
         };
       }));
     };
@@ -52,15 +73,31 @@ export default function Home() {
       window.removeEventListener('restaurantos-demo-state-change', refresh);
     };
   }, [table]);
+  useEffect(() => {
+    const sync = () => setLanguage(readLanguage());
+    sync();
+    return subscribeToLanguageChange(sync);
+  }, []);
+  useEffect(() => { document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en-AU'; }, [language]);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('restaurantos-demo-inventory');
+      if (saved) setInventory(JSON.parse(saved));
+    } catch { /* keep sample inventory */ }
+    setInventoryReady(true);
+  }, []);
+  useEffect(() => { if (inventoryReady) localStorage.setItem('restaurantos-demo-inventory', JSON.stringify(inventory)); }, [inventory, inventoryReady]);
   const total = useMemo(() => cart.reduce((n, x) => n + x.price, 0), [cart]);
   const notify = (text: string) => { setToast(text); window.setTimeout(() => setToast(''), 2600); };
   const filteredMenu = menu.filter(x => x.category === category && `${x.name} ${x.nameZh}`.toLowerCase().includes(search.toLowerCase()));
+  const catalogMenu = menu.filter(x => (menuCategory === 'ALL' || x.category === menuCategory) && `${x.name} ${x.nameZh}`.toLowerCase().includes(menuSearch.toLowerCase()));
   const add = (item: MenuItem) => setCart(old => [...old, item]);
   const send = () => {
     if (!cart.length) return;
     const demo = readDemoState();
     writeDemoState({
       ...demo,
+      clearedTables: demo.clearedTables.filter(n => n !== table),
       orders: [...demo.orders, {
         id: `staff-${Date.now()}`,
         table,
@@ -70,39 +107,64 @@ export default function Home() {
         status: 'Submitted',
       }],
     });
-    setCart([]); notify(`Demo order sent to kitchen · Table ${table}`);
+    setCart([]); notify(tx.orderSent);
   };
-  const pay = () => {
+  const pay = (tableToClear = table) => {
     const demo = readDemoState();
     writeDemoState({
-      orders: demo.orders.map(order => order.table === table ? { ...order, status: 'Paid' } : order),
-      requests: demo.requests.filter(request => request.table !== table),
+      ...demo,
+      orders: demo.orders.map(order => order.table === tableToClear ? { ...order, status: 'Paid' } : order),
+      requests: demo.requests.filter(request => request.table !== tableToClear),
+      clearedTables: [...new Set([...demo.clearedTables, tableToClear])],
     });
-    setTables(old => old.map(t => t.n === table ? { ...t, state: 'Available', guests: 0, total: 0 } : t));
-    setCart([]); notify(`Demo payment recorded · Table ${table} cleared`);
+    setCart([]); notify(tx.paid);
   };
+  const startOrder = () => {
+    const next = tables.find(t => t.state === 'Available')?.n ?? table;
+    setView('Floor'); setTable(next); setCart([]); setCategory(categories[0]); setSearch('');
+    notify(`${tx.table} ${String(next).padStart(2, '0')}`);
+  };
+  const chooseTable = (next: number) => { setTable(next); setCart([]); setCategory(categories[0]); setSearch(''); };
+  const handleRequest = (request: import('./demo-state').DemoRequest) => {
+    if (request.type === 'BILL') { pay(request.table); return; }
+    const demo = readDemoState();
+    writeDemoState({ ...demo, requests: demo.requests.filter(item => !(item.table === request.table && item.type === request.type)) });
+    notify(tx.handled);
+  };
+  const changeStock = (index: number, delta: number) => setInventory(items => items.map((item, i) => i === index ? { ...item, stock: Math.max(0, Math.round((item.stock + delta) * 10) / 10) } : item));
   const seated = tables.filter(t => t.state !== 'Available').length;
-  const nav = ['Floor', 'Menu', 'Inventory', 'Reports'];
+  const activeOrderCount = allOrders.filter(order => order.status === 'Submitted').length;
+  const sampleSales = 4286 + allOrders.filter(order => order.status === 'Paid').reduce((sum, order) => sum + order.amount, 0);
+  const nav = [
+    { id: 'Floor', label: tx.floor, Icon: LayoutDashboard },
+    { id: 'Menu', label: tx.menu, Icon: BookOpen },
+    { id: 'Inventory', label: tx.inventory, Icon: Boxes },
+    { id: 'Reports', label: tx.reports, Icon: BarChart3 },
+  ];
+  const tableState = (state: string) => state === 'Available' ? tx.available : state === 'Bill' ? tx.bill : tx.seated;
+  const categoryLabel = (name: string) => language === 'zh' ? categoryZh[name] : ({ 'TOP SELLERS':'Top sellers', 'SPECIAL OFFER':'Special offers', 'BBQ MENU':'BBQ', 'CLAYPOT RICE':'Clay pot rice', NOODLES:'Noodles', "CHEF'S PICK":'Chef’s picks', SOUP:'Soup', DRINKS:'Drinks' } as Record<string,string>)[name] ?? name;
+  const title = view === 'Floor' ? tx.greeting : view === 'Menu' ? tx.menuTitle : view === 'Inventory' ? tx.stockTitle : tx.reportsTitle;
 
   return <main className="shell">
-    <aside className="rail"><div className="brand"><span className="brand-mark">R</span><span>Restaurant<span className="brand-light">OS</span><small>AU · SYDNEY</small></span></div>
-      <div className="rail-label">{language === 'zh' ? '工作区' : 'WORKSPACE'}</div>{nav.map((item, i) => <button key={item} className={`nav-item ${view === item ? 'active' : ''}`} onClick={() => setView(item)}><span className="nav-icon">{['▦','☷','◫','▥'][i]}</span>{language === 'zh' ? ['桌台','菜单','库存','报表'][i] : item}</button>)}
-      <div className="rail-bottom"><div className="demo-pill"><span className="pulse"/> DEMO MODE</div><div className="profile"><div className="avatar">A</div><div><strong>Alex Morgan</strong><small>Restaurant manager</small></div><span className="dots">···</span></div></div>
+    <aside className="rail polished-rail"><a className="brand" href="/" aria-label="RestaurantOS"><span className="brand-mark"><Store size={18}/></span><span>RestaurantOS<small>ORDERING DEMO</small></span></a>
+      <div className="rail-label">{tx.workspace}</div>{nav.map(({id,label,Icon}) => <button key={id} className={`nav-item ${view === id ? 'active' : ''}`} onClick={() => setView(id)}><Icon size={17}/><span>{label}</span></button>)}
+      <div className="rail-bottom"><div className="demo-pill"><span className="pulse"/> {tx.demo}</div><div className="profile"><div className="avatar">A</div><div><strong>Alex Morgan</strong><small>{tx.manager}</small></div></div></div>
     </aside>
-    <section className="main"><header className="topbar"><div><span className="crumb">WORKSPACE</span><span className="slash">/</span><strong>{view}</strong></div><div className="top-right"><span className="live"><i/> Demo data</span><span className="date">Sat, 7 Nov 2026</span><button className="language-switch" onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}>{language === 'en' ? '中文' : 'English'}</button><button className="icon-button" aria-label="Notifications">♧<b/></button></div></header>
-      <div className="content"><div className="heading-row"><div><div className="eyebrow">SYDNEY · AUSTRALIA</div><h1>{view === 'Floor' ? 'Good evening, Alex' : view === 'Menu' ? 'Menu catalogue' : view === 'Inventory' ? 'Stock overview' : 'Sales snapshot'} <span className="wave">✳</span></h1><p>{view === 'Floor' ? 'Here’s what’s happening across your restaurant tonight.' : 'A live-looking preview with sample restaurant data.'}</p></div><button className="primary" onClick={() => {setView('Floor');setTable(1);notify('New demo order started for Table 1')}}>＋ <span>New order</span></button></div>
-        <div className="metrics"><Metric label="TODAY'S SALES" value="$4,286" delta="↑ 12.8%" hint="vs last Saturday" icon="$" color="mint"/><Metric label="ORDERS TODAY" value="86" delta="↑ 8.2%" hint="vs last Saturday" icon="↗" color="blue"/><Metric label="TABLES IN USE" value={`${seated} / 30`} delta="33% occupied" hint="10 tables available" icon="▦" color="violet"/><Metric label="AVG. ORDER VALUE" value="$49.84" delta="↑ 4.1%" hint="vs last Saturday" icon="◎" color="amber"/></div>
-        {view === 'Floor' && <div className="workspace-grid"><section className="panel floor-panel"><div className="panel-head"><div><h2>Floor plan</h2><p>Saturday dinner service <span className="tiny-dot"/> Updated just now</p></div><div className="floor-tools"><button className="soft-button" onClick={() => notify('Floor layout is sample data')}>⌗ <span>Floor 1</span>⌄</button><button className="square-button" onClick={() => notify('30 demo tables are shown')}>↻</button></div></div><div className="legend"><span><i className="legend-free"/> Available <b>{30-seated}</b></span><span><i className="legend-busy"/> Seated <b>{seated}</b></span><span><i className="legend-bill"/> Bill requested <b>{tables.filter(t=>t.state==='Bill').length}</b></span></div><div className="table-grid">{tables.map(t=><button key={t.n} onClick={()=>{setTable(t.n);setCart([])}} className={`table-card ${t.state==='Seated'?'busy':t.state==='Bill'?'bill':''} ${table===t.n?'selected':''}`}><span className="table-top"><span className="table-n">{String(t.n).padStart(2,'0')}</span><span className="table-state">{t.state==='Available'?'Open':t.state}</span></span><span className="table-bottom"><span>{t.guests ? `♙ ${t.guests} guests` : 'Seats 4'}</span><b>{t.total ? fmt(t.total) : '—'}</b></span></button>)}</div><div className="floor-foot"><span>Showing all tables · Floor 1</span><button onClick={()=>notify('Floor layout settings are part of the full system')}>Manage floor →</button></div></section>
-          <section className="panel order-panel"><div className="panel-head order-head"><div><div className="eyebrow">CURRENT TABLE</div><h2>Table {String(table).padStart(2,'0')} <span className="status-chip">{tables[table-1].state==='Available'?'New order':tables[table-1].state}</span></h2><p>⌖ Floor 1 <span className="slash">·</span> {tables[table-1].guests || 2} guests</p></div><div className="qr-actions"><button className="soft-button qr-trigger" onClick={()=>setQrOpen(true)}>▦ <span>Table QR</span></button><button className="square-button" onClick={()=>notify('Table actions are simulated')}>···</button></div></div><div className="order-scroll"><div className="order-tabs">{categories.map(x=><button className={category===x?'chosen':''} onClick={()=>setCategory(x)} key={x}>{language==='zh'?categoryZh[x]:x}</button>)}</div><input className="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder={language==='zh'?'⌕ 搜索菜品…':'⌕  Find a dish…'}/><div className="dish-list">{filteredMenu.map((x,i)=><button className="dish" key={x.name} onClick={()=>add(x)}><span className={`dish-art art-${i%4}`}>{['✳','◉','✦','◌'][i%4]}</span><span className="dish-info"><strong>{language==='zh'?x.nameZh:x.name}</strong><small>{language==='zh'?x.name:x.nameZh}</small></span><b>{fmt(x.price)}</b><span className="add">＋</span></button>)}</div><div className="ticket-head"><span>Current ticket</span><span>{demoOrders.reduce((n,o)=>n+o.items.length,0)+cart.length} items <b>·</b> {fmt(tables[table-1].total+total)}</span></div>{demoOrders.map(order=><div className="guest-ticket" key={order.id}><div>{order.items.map((item,i)=><div className="ticket-item" key={`${item.name}-${i}`}><span>{language==='zh'?(item.nameZh||item.name):item.name}<small className="ticket-note">Customer QR order{order.customerNote?` · ${order.customerNote}`:''}</small></span><b>{fmt(item.price)}</b></div>)}</div></div>)}{cart.map((x,i)=><div className="ticket-item" key={`${x.name}-${i}`}><span>{language==='zh'?x.nameZh:x.name}</span><b>{fmt(x.price)}</b></div>)}{cart.length===0&&demoOrders.length===0&&<div className="empty-ticket">Choose a dish or scan this table’s QR code.</div>}</div><div className="order-actions"><button className="secondary" onClick={pay}>Record demo payment</button><button className="primary send" onClick={send}>Send to kitchen <span>→</span></button></div><p className="safe-note">ⓘ Demo orders stay in this browser · no real kitchen receives them</p></section></div>}
-        {view === 'Menu' && <div className="panel table-view"><div className="panel-head"><div><h2>Menu items</h2><p>Sample dishes and AUD display prices</p></div><button className="primary" onClick={()=>notify('Menu editing is simulated in this preview')}>＋ Add item</button></div><div className="table-scroll"><table><thead><tr><th>ITEM</th><th>CATEGORY</th><th>PRICE</th><th>AVAILABILITY</th></tr></thead><tbody>{menu.map(x=><tr key={x.name}><td><strong>{language==='zh'?x.nameZh:x.name}</strong><small>{language==='zh'?x.name:x.nameZh}</small></td><td>{language==='zh'?categoryZh[x.category]:x.category}</td><td>{fmt(x.price)}</td><td><span className="available-chip">● Available</span></td></tr>)}</tbody></table></div></div>}
-        {view === 'Inventory' && <div className="panel table-view"><div className="panel-head"><div><h2>Ingredient stock</h2><p>Illustrative stock levels · units and costs need restaurant confirmation</p></div><button className="soft-button" onClick={()=>notify('Stock adjustments are not saved in demo mode')}>＋ Adjustment</button></div><div className="table-scroll"><table><thead><tr><th>INGREDIENT</th><th>ON HAND</th><th>REORDER AT</th><th>STATUS</th></tr></thead><tbody>{[['Chicken breast','18 kg','8 kg','Healthy'],['Jasmine rice','6 kg','10 kg','Reorder'],['Canola oil','14 L','5 L','Healthy'],['Baby spinach','2 kg','4 kg','Reorder'],['Barramundi fillet','9 kg','5 kg','Healthy'],['Takeaway boxes','48 each','30 each','Healthy']].map(row=><tr key={row[0]}><td><strong>{row[0]}</strong></td><td>{row[1]}</td><td>{row[2]}</td><td><span className={row[3]==='Reorder'?'reorder-chip':'available-chip'}>● {row[3]}</span></td></tr>)}</tbody></table></div></div>}
-        {view === 'Reports' && <div className="report-grid"><div className="panel report-card"><div className="panel-head"><div><h2>Revenue overview</h2><p>Demo week · AUD</p></div><span className="available-chip">↑ 9.4%</span></div><div className="big-number">$24,680 <small>this week</small></div><div className="chart">{[42,55,49,74,63,87,72].map((h,i)=><div key={i} className="bar-wrap"><div className={`bar ${i===5?'today':''}`} style={{height:`${h}%`}}/><small>{['M','T','W','T','F','S','S'][i]}</small></div>)}</div></div><div className="panel report-card"><div className="panel-head"><div><h2>Popular dishes</h2><p>Sample items by order count</p></div></div>{[['Chargrilled barramundi','128'],['Chicken schnitzel','96'],['Roast pumpkin salad','74'],['Crispy potatoes','63']].map((x,i)=><div className="popular-row" key={x[0]}><span className="rank">0{i+1}</span><span>{x[0]}</span><b>{x[1]}</b></div>)}<div className="disclaimer">Revenue preview only · does not represent profit or verified accounting data.</div></div></div>}
-        <div className="demo-banner"><span className="demo-icon">✳</span><span><strong>Interactive demo</strong><small>Sample data only. QR orders sync across tabs in this browser only.</small></span><button className="reset-demo" onClick={()=>{clearDemoState();setCart([]);notify('Demo order data reset')}}>↻ Reset demo</button><button className="about-demo" onClick={()=>notify('This is a front-end demo. Connect a backend for real operations.')}>About this demo →</button></div>
-        <footer>RESTAURANTOS AU <span>·</span> SYDNEY <span className="footer-right">A demonstration build · AUD · Australia/Sydney</span></footer>
+    <section className="main polished-main"><header className="topbar polished-topbar"><div><span className="crumb">{tx.workspace}</span><span className="slash">/</span><strong>{nav.find(item=>item.id===view)?.label}</strong></div><div className="top-right"><span className="live"><i/>{tx.demoData}</span><button className="language-switch" onClick={() => writeLanguage(language === 'en' ? 'zh' : 'en')}>{tx.language}</button></div></header>
+      <div className="content polished-content"><div className="heading-row polished-heading"><div><div className="eyebrow">{tx.region}</div><h1>{title}<span className="wave">✳</span></h1><p>{view === 'Floor' ? tx.overview : view === 'Menu' ? tx.menuNote : view === 'Inventory' ? tx.stockHint : tx.sampleAUD}</p></div><button className="primary" onClick={startOrder}><Plus size={16}/><span>{tx.newOrder}</span></button></div>
+        <div className="metrics polished-metrics"><Metric label={tx.sales} value={fmt(sampleSales)} hint={tx.sample} icon={CircleDollarSign} color="coral"/><Metric label={tx.orders} value={String(86 + allOrders.length)} hint={`${allOrders.length} ${tx.browserOrders}`} icon={Receipt} color="blue"/><Metric label={tx.tables} value={`${seated} / 30`} hint={tx.occupied} icon={Users} color="green"/><Metric label={tx.calls} value={String(requests.length)} hint={tx.waiting} icon={Bell} color="amber"/></div>
+        {requests.length > 0 && <section className="panel requests-panel"><div className="panel-head"><div><span className="section-kicker"><Bell size={14}/>{tx.requests}</span><p>{requests.length} {language === 'zh' ? '个待处理' : 'open'}</p></div><span className="request-pulse"><CircleAlert size={15}/>{language === 'zh' ? '需要处理' : 'Needs attention'}</span></div><div className="request-list">{requests.map(request => <div className="request-row" key={`${request.table}-${request.type}`}><span className="request-icon">{request.type === 'BILL' ? <Receipt size={17}/> : <Bell size={17}/>}</span><div className="request-copy"><strong>{tx.table} {String(request.table).padStart(2, '0')} · {request.type === 'BILL' ? tx.billRequest : tx.call}</strong><small><Clock3 size={12}/>{new Intl.DateTimeFormat(language === 'zh' ? 'zh-AU' : 'en-AU', { hour:'2-digit', minute:'2-digit' }).format(new Date(request.createdAt))}</small></div><button className="request-action" onClick={() => request.type === 'BILL' ? pay(request.table) : handleRequest(request)}>{request.type === 'BILL' ? tx.payBill : tx.handle}<ArrowRight size={14}/></button></div>)}</div></section>}
+        {view === 'Floor' && <div className="workspace-grid"><section className="panel floor-panel"><div className="panel-head"><div><span className="section-kicker"><LayoutDashboard size={14}/>{tx.floorPlan}</span><p>{tx.service}<span className="tiny-dot"/>{tx.updates}</p></div><div className="floor-tools"><button className="soft-button" onClick={() => notify(tx.floorPlan)}><Store size={14}/> <span>{tx.allTables}</span></button><button className="square-button" onClick={() => notify(tx.demoData)}><RefreshCw size={14}/></button></div></div><div className="legend"><span><i className="legend-free"/> {tx.available} <b>{tables.filter(t=>t.state==='Available').length}</b></span><span><i className="legend-busy"/> {tx.seated} <b>{tables.filter(t=>t.state==='Seated').length}</b></span><span><i className="legend-bill"/> {tx.bill} <b>{tables.filter(t=>t.state==='Bill').length}</b></span></div><div className="table-grid">{tables.map(t=><button key={t.n} onClick={()=>chooseTable(t.n)} className={`table-card ${t.state==='Seated'?'busy':t.state==='Bill'?'bill':''} ${table===t.n?'selected':''}`}><span className="table-top"><span className="table-n">{String(t.n).padStart(2,'0')}</span><span className="table-state">{tableState(t.state)}</span></span><span className="table-bottom"><span>{t.guests ? <><Users size={12}/> {t.guests} {tx.guests}</> : tx.seats}</span><b>{t.total ? fmt(t.total) : '—'}</b></span></button>)}</div><div className="floor-foot"><span>{tx.allTables} · {language==='zh'?'选择桌台后即可录入订单':'Choose a table to start an order'}</span><span className="floor-foot-state"><span className="pulse"/>{tx.demoData}</span></div></section>
+          <section className="panel order-panel"><div className="panel-head order-head"><div><span className="section-kicker"><ChefHat size={14}/>{tx.currentTable}</span><h2>{tx.table} {String(table).padStart(2,'0')} <span className="status-chip">{tableState(tables[table-1].state)}</span></h2><p><Users size={12}/>{tables[table-1].guests || 2} {tx.guests}</p></div><div className="qr-actions"><button className="soft-button qr-trigger" onClick={()=>setQrOpen(true)}><QrCode size={15}/><span>{tx.qr}</span></button><button className="square-button" onClick={()=>notify('Table actions are simulated')}>···</button></div></div><div className="order-scroll"><div className="order-tabs">{categories.map(x=><button className={category===x?'chosen':''} onClick={()=>setCategory(x)} key={x}>{categoryLabel(x)}</button>)}</div><input className="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder={tx.searchDish}/><div className="dish-list">{filteredMenu.map((x,i)=><button className="dish" key={x.name} onClick={()=>add(x)}><img className="dish-thumbnail" src={x.image} alt=""/><span className="dish-info"><strong>{language==='zh'?x.nameZh:x.name}</strong><small>{language==='zh'?x.name:x.nameZh}</small></span><b>{fmt(x.price)}</b><span className="add">＋</span></button>)}</div><div className="ticket-head"><span>{tx.ticket}</span><span>{demoOrders.reduce((n,o)=>n+o.items.length,0)+cart.length} {tx.items} <b>·</b> {fmt(tables[table-1].total+total)}</span></div>{demoOrders.map(order=><div className="guest-ticket" key={order.id}><div>{order.items.map((item,i)=><div className="ticket-item" key={`${item.name}-${i}`}><span>{language==='zh'?(item.nameZh||item.name):item.name}<small className="ticket-note">{language==='zh'?'扫码订单':'QR table order'}{order.customerNote?` · ${order.customerNote}`:''}</small></span><b>{fmt(item.price)}</b></div>)}</div></div>)}{cart.map((x,i)=><div className="ticket-item" key={`${x.name}-${i}`}><span>{language==='zh'?x.nameZh:x.name}</span><b>{fmt(x.price)}</b></div>)}{cart.length===0&&demoOrders.length===0&&<div className="empty-ticket">{tx.addHint}</div>}</div><div className="order-actions"><button className="secondary" onClick={()=>pay()} disabled={!tables[table-1].total&&!cart.length}>{tx.pay}</button><button className="primary send" onClick={send} disabled={!cart.length}>{tx.send}<ArrowRight size={15}/></button></div><p className="safe-note">ⓘ {tx.localOnly}</p></section></div>}
+        {view === 'Menu' && <section className="panel table-view polished-view"><div className="panel-head"><div><span className="section-kicker"><BookOpen size={14}/>{tx.menuTitle}</span><p>{menu.length} {tx.itemCount} · {tx.menuNote}</p></div><span className="catalog-total"><span className="pulse"/>{language==='zh'?'菜单快照':'Menu snapshot'}</span></div><div className="catalog-tools"><label className="search polished-search"><Search size={15}/><input value={menuSearch} onChange={e=>setMenuSearch(e.target.value)} placeholder={tx.menuSearch}/></label><select value={menuCategory} onChange={e=>setMenuCategory(e.target.value)} aria-label={tx.category}><option value="ALL">{tx.allCategories}</option>{categories.map(name=><option key={name} value={name}>{categoryLabel(name)}</option>)}</select></div><div className="table-scroll"><table className="catalog-table"><thead><tr><th>{tx.dish}</th><th>{tx.category}</th><th>{tx.price}</th><th>{tx.status}</th></tr></thead><tbody>{catalogMenu.map(item=><tr key={item.name}><td><span className="catalog-dish"><img src={item.image} alt=""/><span><strong>{language==='zh'?item.nameZh:item.name}</strong><small>{language==='zh'?item.name:item.nameZh}</small></span></span></td><td>{language==='zh'?categoryZh[item.category]:categoryLabel(item.category)}</td><td><strong>{fmt(item.price)}</strong></td><td><span className="available-chip"><Check size={12}/>{tx.inStock}</span></td></tr>)}</tbody></table>{catalogMenu.length===0&&<div className="empty-catalog">{tx.noMatch}</div>}</div></section>}
+        {view === 'Inventory' && <section className="panel table-view polished-view"><div className="panel-head"><div><span className="section-kicker"><Package size={14}/>{tx.stock}</span><p>{tx.stockHint}</p></div><span className="catalog-total"><span className="pulse"/>{language==='zh'?'本地演示数据':'Local demo data'}</span></div><div className="table-scroll"><table className="catalog-table inventory-table"><thead><tr><th>{tx.ingredient}</th><th>{tx.onHand}</th><th>{tx.reorderAt}</th><th>{tx.status}</th><th>{language==='zh'?'调整':'ADJUST'}</th></tr></thead><tbody>{inventory.map((item,index)=>{const low=item.stock<=item.reorder;return <tr key={item.name}><td><span className="ingredient-name"><span className="ingredient-icon"><Package size={15}/></span><span><strong>{language==='zh'?item.nameZh:item.name}</strong><small>{language==='zh'?item.name:item.nameZh}</small></span></span></td><td><strong>{item.stock} {item.unit}</strong></td><td>{item.reorder} {item.unit}</td><td><span className={low?'reorder-chip':'available-chip'}>{low?<CircleAlert size={12}/>:<Check size={12}/>} {low?tx.reorder:tx.healthy}</span></td><td><div className="stock-controls"><button onClick={()=>{changeStock(index,-1);notify(tx.stockSaved)}} aria-label={tx.less}><Minus size={14}/></button><button onClick={()=>{changeStock(index,1);notify(tx.stockSaved)}} aria-label={tx.more}><Plus size={14}/></button></div></td></tr>})}</tbody></table></div></section>}
+        {view === 'Reports' && <div className="report-grid polished-reports"><section className="panel report-card polished-report-card"><div className="panel-head"><div><span className="section-kicker"><BarChart3 size={14}/>{tx.sampleWeek}</span><p>{tx.sampleAUD}</p></div><span className="available-chip"><Sparkles size={12}/>{tx.sample}</span></div><div className="big-number">$24,680 <small>{tx.thisWeek}</small></div><div className="chart">{[42,55,49,74,63,87,72].map((height,i)=><div key={i} className="bar-wrap"><div className={`bar ${i===5?'today':''}`} style={{height:`${height}%`}}/><small>{language==='zh'?['一','二','三','四','五','六','日'][i]:['M','T','W','T','F','S','S'][i]}</small></div>)}</div></section><section className="panel report-card polished-report-card"><div className="panel-head"><div><span className="section-kicker"><ChefHat size={14}/>{tx.popular}</span><p>{tx.menuNote}</p></div></div>{menu.slice(0,5).map((item,i)=><div className="popular-row" key={item.name}><span className="rank">0{i+1}</span><span>{language==='zh'?item.nameZh:item.name}</span><b>{fmt(item.price)}</b></div>)}<div className="disclaimer">{tx.reportNote}</div></section><section className="panel report-summary"><div><Receipt size={18}/><span>{tx.orders}</span><strong>{activeOrderCount}</strong><small>{allOrders.length} {tx.browserOrders}</small></div><div><Bell size={18}/><span>{tx.requests}</span><strong>{requests.length}</strong><small>{tx.waiting}</small></div></section></div>}
+        <div className="demo-banner polished-demo-banner"><span className="demo-icon"><Sparkles size={16}/></span><span><strong>{tx.interactive}</strong><small>{tx.demoDescription}</small></span><button className="reset-demo" onClick={()=>{clearDemoState();setCart([]);setInventory([{name:'Chicken thigh',nameZh:'鸡腿肉',stock:18,unit:'kg',reorder:8},{name:'Jasmine rice',nameZh:'香米',stock:26,unit:'kg',reorder:10},{name:'Canola oil',nameZh:'菜籽油',stock:14,unit:'L',reorder:5},{name:'Baby spinach',nameZh:'嫩菠菜',stock:2,unit:'kg',reorder:4},{name:'Barramundi fillet',nameZh:'盲曹鱼片',stock:9,unit:'kg',reorder:5},{name:'Takeaway boxes',nameZh:'外卖餐盒',stock:48,unit:'each',reorder:30}]);notify(tx.resetDone)}}><RefreshCw size={13}/>{tx.reset}</button></div>
+        <footer>RESTAURANTOS <span>·</span> {language === 'zh' ? '互动演示' : 'INTERACTIVE DEMO'} <span className="footer-right">{tx.footer}</span></footer>
       </div>
-    </section>{qrOpen&&<div className="modal-backdrop" onClick={()=>setQrOpen(false)}><section className="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title" onClick={e=>e.stopPropagation()}><button className="modal-close" onClick={()=>setQrOpen(false)} aria-label="Close QR code">×</button><div className="eyebrow">TABLE {String(table).padStart(2,'0')}</div><h2 id="qr-title">Scan to order</h2><p className="qr-intro">Guests can browse the sample menu and send an order from their phone.</p><div className="qr-box"><QRCodeSVG value={`https://vercel-demo-peach-six.vercel.app/table/${String(table).padStart(2,'0')}`} size={220} level="H" includeMargin fgColor="#173b30" /></div><a className="guest-link" href={`/table/${String(table).padStart(2,'0')}`} target="_blank" rel="noreferrer">Open customer ordering page ↗</a><button className="copy-link" onClick={async()=>{await navigator.clipboard.writeText(`https://vercel-demo-peach-six.vercel.app/table/${String(table).padStart(2,'0')}`);notify('Demo table link copied')}}>Copy table link</button><div className="qr-caveat">Demo QR uses a visible table number. Production QR codes need secure, rotatable tokens and a shared server session.</div></section></div>}{toast&&<div className="toast">✓ &nbsp;{toast}</div>}
+    </section>{qrOpen&&<div className="modal-backdrop" onClick={()=>setQrOpen(false)}><section className="qr-modal polished-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title" onClick={e=>e.stopPropagation()}><button className="modal-close" onClick={()=>setQrOpen(false)} aria-label={tx.close}><X size={18}/></button><div className="qr-modal-icon"><QrCode size={19}/></div><div className="eyebrow">{tx.table.toUpperCase()} {String(table).padStart(2,'0')}</div><h2 id="qr-title">{tx.qr}</h2><p className="qr-intro">{tx.qrHelp}</p><div className="qr-box"><QRCodeSVG value={`https://vercel-demo-peach-six.vercel.app/table/${String(table).padStart(2,'0')}`} size={220} level="H" includeMargin fgColor="#173b30" /></div><a className="guest-link" href={`/table/${String(table).padStart(2,'0')}`} target="_blank" rel="noreferrer">{tx.openOrder}<ArrowRight size={14}/></a><button className="copy-link" onClick={async()=>{await navigator.clipboard.writeText(`https://vercel-demo-peach-six.vercel.app/table/${String(table).padStart(2,'0')}`);notify(tx.copied)}}>{tx.copyLink}</button><div className="qr-caveat">{tx.localOnly}</div></section></div>}{toast&&<div className="toast">✓ &nbsp;{toast}</div>}
   </main>;
 }
 
-function Metric({label,value,delta,hint,icon,color}:{label:string;value:string;delta:string;hint:string;icon:string;color:string}){return <div className="metric"><div className="metric-top"><span>{label}</span><span className={`metric-icon ${color}`}>{icon}</span></div><div className="metric-value">{value}</div><div className="metric-foot"><b>{delta}</b><span>{hint}</span></div></div>}
+function Metric({label,value,hint,icon:Icon,color}:{label:string;value:string;hint:string;icon:React.ComponentType<{size?:number}>;color:string}){return <div className="metric polished-metric"><div className="metric-top"><span>{label}</span><span className={`metric-icon ${color}`}><Icon size={17}/></span></div><div className="metric-value">{value}</div><div className="metric-foot"><span>{hint}</span></div></div>}
 

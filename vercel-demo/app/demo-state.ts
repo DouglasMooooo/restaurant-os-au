@@ -9,21 +9,22 @@ export type DemoOrder = {
 };
 
 export type DemoRequest = { table: number; type: 'WAITER' | 'BILL'; createdAt: string };
-export type DemoState = { orders: DemoOrder[]; requests: DemoRequest[] };
+export type DemoState = { orders: DemoOrder[]; requests: DemoRequest[]; clearedTables: number[] };
 
 const KEY = 'restaurantos-au-demo-state-v1';
 
 export function readDemoState(): DemoState {
   try {
     const value = window.localStorage.getItem(KEY);
-    if (!value) return { orders: [], requests: [] };
+    if (!value) return { orders: [], requests: [], clearedTables: [] };
     const data = JSON.parse(value) as Partial<DemoState>;
     return {
       orders: Array.isArray(data.orders) ? data.orders : [],
       requests: Array.isArray(data.requests) ? data.requests : [],
+      clearedTables: Array.isArray(data.clearedTables) ? data.clearedTables : [],
     };
   } catch {
-    return { orders: [], requests: [] };
+    return { orders: [], requests: [], clearedTables: [] };
   }
 }
 
