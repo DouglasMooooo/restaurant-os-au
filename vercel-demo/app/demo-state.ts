@@ -31,3 +31,8 @@ export function writeDemoState(data: DemoState) {
   window.localStorage.setItem(KEY, JSON.stringify(data));
   window.dispatchEvent(new Event('restaurantos-demo-state-change'));
 }
+
+export function clearDemoState() {
+  window.localStorage.removeItem(KEY);
+  window.dispatchEvent(new Event('restaurantos-demo-state-change'));
+}
