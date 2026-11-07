@@ -1,7 +1,7 @@
 export type DemoOrder = {
   id: string;
   table: number;
-  items: Array<{ name: string; price: number; note: string }>;
+  items: Array<{ name: string; nameZh?: string; price: number; note?: string }>;
   amount: number;
   createdAt: string;
   customerNote?: string;

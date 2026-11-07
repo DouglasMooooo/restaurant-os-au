@@ -1,0 +1,554 @@
+[
+  {
+    "name": "Tender Chicken and Shiitake Mushroom",
+    "nameZh": "冬菇滑鸡煲仔饭",
+    "category": "TOP SELLERS",
+    "price": 19.1
+  },
+  {
+    "name": "Pork Ribs and Cured Meat with Black Bean Sauce",
+    "nameZh": "豉汁排骨腊味煲仔飯",
+    "category": "TOP SELLERS",
+    "price": 21.15
+  },
+  {
+    "name": "Pineapple Bun With Butter",
+    "nameZh": "菠蘿油",
+    "category": "TOP SELLERS",
+    "price": 5.3
+  },
+  {
+    "name": "Two Choices of BBQ With Rice/Noodles",
+    "nameZh": "双拼烧腊饭或面",
+    "category": "TOP SELLERS",
+    "price": 18.3
+  },
+  {
+    "name": "Two Choice BBQ",
+    "nameZh": "双拼烧腊煲仔饭",
+    "category": "TOP SELLERS",
+    "price": 21.15
+  },
+  {
+    "name": "Chinese Cured Meat",
+    "nameZh": "腊味煲仔飯",
+    "category": "TOP SELLERS",
+    "price": 19.1
+  },
+  {
+    "name": "Bo Lo Bao with Milk Tea",
+    "nameZh": "Bo Lo Bao with Milk Tea",
+    "category": "SPECIAL OFFER",
+    "price": 10.15
+  },
+  {
+    "name": "Savory Shrimp Roe with Zesty Lemon Tea",
+    "nameZh": "Savory Shrimp Roe with Zesty Lemon Tea",
+    "category": "SPECIAL OFFER",
+    "price": 16.05
+  },
+  {
+    "name": "Roast Duck",
+    "nameZh": "港式烧鸭",
+    "category": "BBQ MENU",
+    "price": 20.3
+  },
+  {
+    "name": "BBQ Pork with Honey (1kg)",
+    "nameZh": "蜜汁叉烧",
+    "category": "BBQ MENU",
+    "price": 38.6
+  },
+  {
+    "name": "Soy Sauce Chicken",
+    "nameZh": "鼓油鸡",
+    "category": "BBQ MENU",
+    "price": 15.25
+  },
+  {
+    "name": "Honey-Cured Sausage (1kg)",
+    "nameZh": "红肠",
+    "category": "BBQ MENU",
+    "price": 38.6
+  },
+  {
+    "name": "Soy Chicken Thigh (1 Pc)",
+    "nameZh": "鼓油鸡腿",
+    "category": "BBQ MENU",
+    "price": 6.6
+  },
+  {
+    "name": "Fatty BBQ Pork (1kg)",
+    "nameZh": "肥叉烧",
+    "category": "BBQ MENU",
+    "price": 38.6
+  },
+  {
+    "name": "Roast Pigeon (Whole)",
+    "nameZh": "红烧乳鸽",
+    "category": "BBQ MENU",
+    "price": 40.6
+  },
+  {
+    "name": "Shredded Free-Range Chicken",
+    "nameZh": "⾛地⼿撕鸡",
+    "category": "BBQ MENU",
+    "price": 26.4
+  },
+  {
+    "name": "1 Choice Roast Platter",
+    "nameZh": "烧味拼盘",
+    "category": "BBQ MENU",
+    "price": 14.05
+  },
+  {
+    "name": "2 Choice Roast Platter",
+    "nameZh": "烧味拼盘",
+    "category": "BBQ MENU",
+    "price": 23.15
+  },
+  {
+    "name": "3 Choice Roast Platter",
+    "nameZh": "烧味拼盘",
+    "category": "BBQ MENU",
+    "price": 34.35
+  },
+  {
+    "name": "4 Choice Roast Platter",
+    "nameZh": "烧味拼盘",
+    "category": "BBQ MENU",
+    "price": 37.4
+  },
+  {
+    "name": "One Choice of BBQ With Rice/Noodles",
+    "nameZh": "特色烧腊饭/面",
+    "category": "BBQ MENU",
+    "price": 15.75
+  },
+  {
+    "name": "Two Choices of BBQ With Rice/Noodles",
+    "nameZh": "双拼烧腊饭或面",
+    "category": "BBQ MENU",
+    "price": 18.3
+  },
+  {
+    "name": "Three Choices of BBQ With Rice/Noodles",
+    "nameZh": "三拼烧腊饭或面",
+    "category": "BBQ MENU",
+    "price": 20.3
+  },
+  {
+    "name": "Four Choices of BBQ With Rice/Noodles",
+    "nameZh": "四宝饭/面",
+    "category": "BBQ MENU",
+    "price": 22.35
+  },
+  {
+    "name": "Fatty Char Siu with Sunny Side Up Egg",
+    "nameZh": "黯然销魂饭",
+    "category": "BBQ MENU",
+    "price": 19.1
+  },
+  {
+    "name": "Pork Ribs with Black Bean Sauce Clay Pot Rice",
+    "nameZh": "豉汁排骨煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Pork Ribs and Cured Meat with Black Bean Sauce",
+    "nameZh": "豉汁排骨腊味煲仔飯",
+    "category": "CLAYPOT RICE",
+    "price": 21.15
+  },
+  {
+    "name": "Pork Ribs and Taro with Black Bean Sauce",
+    "nameZh": "豉汁排骨芋头煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 21.15
+  },
+  {
+    "name": "Chinese Cured Meat",
+    "nameZh": "腊味煲仔飯",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Chinese Cured Meat and Wontons",
+    "nameZh": "腊味云吞煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 22.35
+  },
+  {
+    "name": "Salted Fish, Pork Patty and Cured Meat",
+    "nameZh": "咸鱼腊味肉饼煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 26.4
+  },
+  {
+    "name": "Pork Ribs, Pork Patty and Cured Meat",
+    "nameZh": "腊味排骨肉饼煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 24.2
+  },
+  {
+    "name": "Tender Beef and Cured Meat",
+    "nameZh": "牛肉腊味煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 21.15
+  },
+  {
+    "name": "Two Choice BBQ",
+    "nameZh": "双拼烧腊煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 21.15
+  },
+  {
+    "name": "Tender Chicken and Shiitake Mushroom",
+    "nameZh": "冬菇滑鸡煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Chinese Cured Meat and Tender Chicken",
+    "nameZh": "腊味滑鸡煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 21.15
+  },
+  {
+    "name": "Roast Duck",
+    "nameZh": "烧鸭煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "BBQ Pork",
+    "nameZh": "叉烧煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Crispy Roast Pork",
+    "nameZh": "脆皮烧肉煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 21.15
+  },
+  {
+    "name": "Braised Beef Brisket",
+    "nameZh": "牛腩煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Tender Beef Poached Egg",
+    "nameZh": "窩蛋牛肉煲仔飯",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Pork Patty Poached Egg",
+    "nameZh": "窩蛋肉餅煲仔飯",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Pork Patty, Chinese Roast Mix",
+    "nameZh": "腊味肉饼煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 20.95
+  },
+  {
+    "name": "Pork Patty with Dried Squid and Shrimp",
+    "nameZh": "土鱿虾米肉饼煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 22.35
+  },
+  {
+    "name": "Minced Dace Fish with Pork Patty",
+    "nameZh": "鲮鱼肉饼煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 26.4
+  },
+  {
+    "name": "Shredded Pork and Preserved Vegetable",
+    "nameZh": "榨菜肉丝煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 19.1
+  },
+  {
+    "name": "Mix of Mushrooms (V)",
+    "nameZh": "羊肚菌菌类什锦煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 26.4
+  },
+  {
+    "name": "Crisp Grass Fish Carp",
+    "nameZh": "脆肉皖鱼煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 21.15
+  },
+  {
+    "name": "Tender Braised Pigeon",
+    "nameZh": "乳鸽煲仔饭",
+    "category": "CLAYPOT RICE",
+    "price": 28.45
+  },
+  {
+    "name": "Braised Beef Noodles",
+    "nameZh": "牛腩面",
+    "category": "NOODLES",
+    "price": 17.1
+  },
+  {
+    "name": "Braised Beef Pork Wonton Noodle Soup",
+    "nameZh": "牛腩云吞面",
+    "category": "NOODLES",
+    "price": 19.1
+  },
+  {
+    "name": "Wonton Noodle Soup",
+    "nameZh": "鲜虾云吞⾯",
+    "category": "NOODLES",
+    "price": 16.05
+  },
+  {
+    "name": "Fresh Prawn Wontons",
+    "nameZh": "净鲜虾云吞",
+    "category": "NOODLES",
+    "price": 17.1
+  },
+  {
+    "name": "Pork and Mushroom Wontons in Soup",
+    "nameZh": "净云吞（鲜肉）",
+    "category": "NOODLES",
+    "price": 14.75
+  },
+  {
+    "name": "Shrimp Roe Noodles",
+    "nameZh": "虾籽捞⾯",
+    "category": "NOODLES",
+    "price": 14.05
+  },
+  {
+    "name": "Soup Dumplings",
+    "nameZh": "猪⾁⽩菜饺⼦",
+    "category": "NOODLES",
+    "price": 16.05
+  },
+  {
+    "name": "Fried Pork & Chives Dumpling",
+    "nameZh": "猪⾁⾲菜饺⼦",
+    "category": "NOODLES",
+    "price": 17.1
+  },
+  {
+    "name": "Roast Duck Rice Noodle",
+    "nameZh": "烧鸭⽶粉",
+    "category": "NOODLES",
+    "price": 15.75
+  },
+  {
+    "name": "Pork & Pickles Vermicelli",
+    "nameZh": "榨菜⾁丝⽶粉",
+    "category": "NOODLES",
+    "price": 15.75
+  },
+  {
+    "name": "Curry Fish Ball",
+    "nameZh": "咖喱⻥丸",
+    "category": "NOODLES",
+    "price": 15.75
+  },
+  {
+    "name": "Pork Ball",
+    "nameZh": "猪⾁丸饭或⽶粉",
+    "category": "NOODLES",
+    "price": 15.75
+  },
+  {
+    "name": "Pan Fried Squid Pork Patty On Rice Fried Egg",
+    "nameZh": "⾹煎⼟鱿虾⽶⾁饼碟头饭 + 煎太阳蛋",
+    "category": "CHEF'S PICK",
+    "price": 22.15
+  },
+  {
+    "name": "Pan Fried Vegetables Stuffed with Pork Mince",
+    "nameZh": "煎酿三宝",
+    "category": "CHEF'S PICK",
+    "price": 25.2
+  },
+  {
+    "name": "Pan Fried Chilli Stuffed with Pork Mince",
+    "nameZh": "煎酿辣椒",
+    "category": "CHEF'S PICK",
+    "price": 27.25
+  },
+  {
+    "name": "Braised Pig Trotter",
+    "nameZh": "五指⽑桃焖猪⼿",
+    "category": "CHEF'S PICK",
+    "price": 25.2
+  },
+  {
+    "name": "Curry Fish Balls",
+    "nameZh": "咖喱魚蛋",
+    "category": "CHEF'S PICK",
+    "price": 6.6
+  },
+  {
+    "name": "Curry Pork Balls",
+    "nameZh": "咖喱豬肉丸",
+    "category": "CHEF'S PICK",
+    "price": 6.6
+  },
+  {
+    "name": "Pineapple Bun",
+    "nameZh": "菠蘿包",
+    "category": "CHEF'S PICK",
+    "price": 4.9
+  },
+  {
+    "name": "Pineapple Bun With Butter",
+    "nameZh": "菠蘿油",
+    "category": "CHEF'S PICK",
+    "price": 5.3
+  },
+  {
+    "name": "Hong Kong Style Tea",
+    "nameZh": "港式奶茶",
+    "category": "CHEF'S PICK",
+    "price": 5.6
+  },
+  {
+    "name": "Iced Lemon Tea",
+    "nameZh": "冻柠茶",
+    "category": "CHEF'S PICK",
+    "price": 6.6
+  },
+  {
+    "name": "Iced Lemon Coke",
+    "nameZh": "冻柠七",
+    "category": "CHEF'S PICK",
+    "price": 6.6
+  },
+  {
+    "name": "Seasonal Vegetable",
+    "nameZh": "时令蔬菜",
+    "category": "CHEF'S PICK",
+    "price": 14.05
+  },
+  {
+    "name": "Wild Fig Root & Pork",
+    "nameZh": "五指⽑桃炖瘦⾁",
+    "category": "SOUP",
+    "price": 13.0
+  },
+  {
+    "name": "Sea Coconut & Apricot Kernel",
+    "nameZh": "南北杏海底椰炖瘦⾁",
+    "category": "SOUP",
+    "price": 13.0
+  },
+  {
+    "name": "Prince Ginseng & Ophiopogon",
+    "nameZh": "太⼦参⻨冬炖瘦⾁",
+    "category": "SOUP",
+    "price": 14.05
+  },
+  {
+    "name": "Solomon's Seal & Lilyturf",
+    "nameZh": "⽟⽵⻨冬炖瘦⾁",
+    "category": "SOUP",
+    "price": 14.05
+  },
+  {
+    "name": "Morel Mushroom & Cordyceps Soup",
+    "nameZh": "⽺肚菌⾍草花炖瘦⾁",
+    "category": "SOUP",
+    "price": 21.15
+  },
+  {
+    "name": "Trio Mushroom & Cordyceps with Free Range Chicken",
+    "nameZh": "珍菌⾍草花炖⾛地鸡",
+    "category": "SOUP",
+    "price": 14.05
+  },
+  {
+    "name": "Trio Mushroom & Cordyceps with Silkie Chicken",
+    "nameZh": "珍菌⾍草花炖乌鸡",
+    "category": "SOUP",
+    "price": 21.15
+  },
+  {
+    "name": "Soft Drinks Can (375ml)",
+    "nameZh": "Soft Drinks Can (375ml)",
+    "category": "DRINKS",
+    "price": 3.05
+  },
+  {
+    "name": "Soft Drinks Bottle",
+    "nameZh": "Soft Drinks Bottle",
+    "category": "DRINKS",
+    "price": 3.05
+  },
+  {
+    "name": "V Energy",
+    "nameZh": "V Energy",
+    "category": "DRINKS",
+    "price": 3.05
+  },
+  {
+    "name": "Red Bull",
+    "nameZh": "Red Bull",
+    "category": "DRINKS",
+    "price": 3.05
+  },
+  {
+    "name": "Bottled Water",
+    "nameZh": "Bottled Water",
+    "category": "DRINKS",
+    "price": 3.05
+  },
+  {
+    "name": "Hong Kong Style Iced Lemon Tea",
+    "nameZh": "Hong Kong Style Iced Lemon Tea",
+    "category": "DRINKS",
+    "price": 6.6
+  },
+  {
+    "name": "Hong Kong Style Hot Lemon Tea",
+    "nameZh": "Hong Kong Style Hot Lemon Tea",
+    "category": "DRINKS",
+    "price": 5.6
+  },
+  {
+    "name": "Hong Kong Style Iced Milk Tea",
+    "nameZh": "Hong Kong Style Iced Milk Tea",
+    "category": "DRINKS",
+    "price": 6.6
+  },
+  {
+    "name": "Hong Kong Style Hot Milk Tea",
+    "nameZh": "Hong Kong Style Hot Milk Tea",
+    "category": "DRINKS",
+    "price": 5.6
+  },
+  {
+    "name": "Citron & Ginger Iced Honey Tea",
+    "nameZh": "Citron & Ginger Iced Honey Tea",
+    "category": "DRINKS",
+    "price": 6.6
+  },
+  {
+    "name": "Citron & Ginger Hot Honey Tea",
+    "nameZh": "Citron & Ginger Hot Honey Tea",
+    "category": "DRINKS",
+    "price": 5.6
+  },
+  {
+    "name": "Passion Fruit Honey Water",
+    "nameZh": "Passion Fruit Honey Water",
+    "category": "DRINKS",
+    "price": 6.6
+  }
+]
