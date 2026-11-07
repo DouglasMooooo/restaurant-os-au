@@ -1,6 +1,6 @@
 # Menu photo credits
 
-These are illustrative stock photos, not Sunshine Restaurant dish photos. The files in `public/menu/` are optimized WebP versions, used under the Unsplash License.
+These are illustrative stock photos, not photos of the restaurant's actual dishes. The files in `public/menu/` are optimized WebP versions, used under the Unsplash License.
 
 - Clay pot rice: Adil Murshed, [Unsplash photo](https://unsplash.com/photos/a-spread-of-rice-and-side-dishes-in-clay-pots-n3IfyQNNZW8).
 - Roast duck with rice: Eric Wang, [Unsplash photo](https://unsplash.com/photos/sliced-roasted-duck-with-rice-and-pickled-vegetables-i6Z4TdUcgf8).
